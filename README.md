@@ -15,6 +15,7 @@ This is an open-source Python project that uses your webcam to perform real-time
 * **"Nu Metal Pose" Trigger:** Specifically detects when **two** hands are simultaneously in the "open" state.
 * **Random Image Overlay:** When the pose is triggered, the app randomly selects one of your custom images and displays it.
 * **Transparency Support:** Correctly overlays PNG images with alpha channels (transparency).
+* **Play Audio:** Using Pygame to play Sound for every image shown
 
 ---
 
@@ -24,6 +25,10 @@ This project was built entirely in Python using two core computer vision librari
 
 * **[OpenCV](https://opencv.org/):** Used for capturing the webcam video feed, basic image processing (like flipping the video for a "selfie" mode), color space conversion (BGR to RGB), and overlaying the final images and text onto the screen.
 * **[MediaPipe](https://developers.google.com/mediapipe) (by Google):** This is the "magic" behind the gesture recognition. We use the `MediaPipe Hands` solution, which provides a high-fidelity, 21-point 3D landmark model for each hand it detects in the frame.
+
+For Audio:
+
+* **[Pygame](https://www.pygame.org/news):** Pygame is a set of Python modules designed for writing games. It is written on top of the excellent SDL library. This allows you to create fully featured games and multimedia programs in the python language. Pygame is highly portable and runs on nearly every platform and operating system.
 
 ---
 
@@ -39,6 +44,7 @@ This project was built entirely in Python using two core computer vision librari
 6.  **Pick Random Image:** A state-locking mechanism (`pose_detected_previously`) ensures that a new random image is chosen from your folder *only on the first frame* the pose is detected (this prevents the image from flickering randomly).
 7.  **Overlay Image:** The chosen image is "pasted" onto the main video frame using `cv2` (OpenCV), correctly handling transparency.
 8.  **Display:** The final, modified frame is shown to the user.
+9. **Audio:** Every chosen imagem has one audio to play when is shown using Pygame library.
 
 ---
 
@@ -59,12 +65,14 @@ You must have Python 3.x installed on your machine.
 2.  **Install the required libraries:**
     ```bash
     pip install opencv-python mediapipe
+    pip install pygame
     ```
 
 ### 3. Usage
 
-1.  **Add Your Images:**
+1.  **Add Your Images and Your Audios:**
     * Find 5 images (or more!) that you want to display.
+    * Find 5 audios (or more!) that you want to play.
     * Place them in the same root folder as the Python script.
     * Update the `IMAGE_FILENAMES` list in the Python script (`main.py`) with the exact names of your files:
     
@@ -72,6 +80,15 @@ You must have Python 3.x installed on your machine.
     IMAGE_FILENAMES = [
         'my_image_1.png',  
         'my_image_2.jpg',  
+        # etc...
+    ]
+    ```
+    * The `SOUND_FILENAMES` is responsible to store every audio filename on the root folder of your project.
+    IMPORTANT: The order of the filenames matters. Place the audio to the correspondent image in the same order of the image filenames.
+    ```python
+    SOUND_FILENAMES = [
+        'my_sound_1.wav',  
+        'my_sound_2.wav',  
         # etc...
     ]
     ```
@@ -83,7 +100,7 @@ You must have Python 3.x installed on your machine.
     *(Change `main.py` to whatever you named your file.)*
 
 3.  **Make the Pose!**
-    * Show both of your hands, open, to the camera to trigger the random image.
+    * Show both of your hands, open, to the camera to trigger the random image and play the audio.
 
 ---
 
