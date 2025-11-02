@@ -1,6 +1,7 @@
 import cv2 # Permissões da Webcam
 import mediapipe as mp
 import random
+import pygame
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
@@ -32,6 +33,15 @@ IMAGE_FILENAMES = [
     'avril.jpg',  
     'serj.jpg',  
     'davi.jpg'   
+]
+
+# Upload dos sons
+SOUND_FILENAMES = [
+    'BreakStuffIntro.wav',
+    'Calmapaizao.wav',
+    'skaterboi.wav',
+    'sugaar.wav',
+    'CalmaCalabreso.wav'
 ]
 
 
@@ -79,6 +89,11 @@ cap = cv2.VideoCapture(0)
 # Controle de estado
 pose_detected_previously = False 
 current_image_to_display = None # Guarda a imagem aleatória escolhida
+is_playing_sound = False
+mixer = None
+
+# Inicializa mixer de som
+pygame.mixer.init() 
 
 print("Mostre as duas mãos abertas para a 'Nu Metal Pose'! Pressione 'q' para sair.")
 
@@ -118,9 +133,18 @@ while cap.isOpened():
         # Se a pose foi encontrada AGORA e NÃO estava sendo mostrada antes
         if not pose_detected_previously:
             pose_detected_previously = True # Ativa a trava
-            # ESCOLHE UMA NOVA IMAGEM ALEATÓRIA da lista
-            current_image_to_display = random.choice(loaded_images) 
-        
+            is_playing_sound = True
+            
+            # ESCOLHE UMA NOVA IMAGEM ALEATÓRIA da lista -- MÉTODO ORIGINAL -- Gabriela Marculino
+            #current_image_to_display = random.choice(loaded_images)
+
+            # ESCOLHE UMA NOVA IMAGEM ALEATÓRIA da lista -- MÉTODO NOVO -- Leonardo Victor
+            image_index = random.randrange(len(loaded_images))
+            current_image_to_display = loaded_images[image_index]
+            # ESCOLHE UM SOM CORRESPONDENTE A IMAGEM
+            sound_to_play = pygame.mixer.Sound(SOUND_FILENAMES[image_index])
+            pygame.mixer.Sound.set_volume(sound_to_play, 0.5) #Ajusta o volume
+
         if current_image_to_display:
             # Pega a imagem e a máscara
             img_bgr, img_alpha = current_image_to_display
@@ -143,8 +167,21 @@ while cap.isOpened():
     else: # Se a pose não foi encontrada neste frame
         pose_detected_previously = False
         current_image_to_display = None # Limpa a imagem
+        sound_to_play = None # Limpa o som
+        is_playing_sound = False
 
-    cv2.imshow('Nu Metal Detector (Com Imagem!)', bgr_frame)
+    cv2.imshow('Nu Metal Detector (Com Imagem!)', bgr_frame) #Exibe imagem
+
+    # Controle do som
+    if sound_to_play and is_playing_sound:
+        is_playing_sound = False
+        mixer = pygame.mixer.Sound.play(sound_to_play) # Reproduz o som
+    elif not sound_to_play:
+        if mixer:
+            mixer.stop()
+
+    
+
 
     if cv2.waitKey(5) & 0xFF == ord('q'):
         break
